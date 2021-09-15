@@ -1,10 +1,16 @@
 package network
 
+import "net"
+
 type BroadcastConnection struct {
 	Connections []Connection
 }
 
 var _ Connection = BroadcastConnection{}
+
+func (b BroadcastConnection) Addr() net.Addr {
+	return nil
+}
 
 func (b BroadcastConnection) Send(data []byte) error {
 	for _, conn := range b.Connections {

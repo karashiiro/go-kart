@@ -5,22 +5,29 @@ import "github.com/karashiiro/gokart/pkg/network"
 const ROOMMAXPLAYERS = 15
 
 type room struct {
-	players      map[network.Connection]*player
+	players      []*player
 	numPlayers   uint8
-	playerInGame map[network.Connection]bool
+	playerInGame []bool
 	state        string
 	broadcast    network.BroadcastConnection
 }
 
 func (r *room) removePlayer(p *player) {
-	var ok bool
-	if _, ok = r.players[p]; !ok {
+	playerIdx := -1
+	for i := 0; i < len(r.players); i++ {
+		if r.players[i] == p {
+			playerIdx = i
+		}
+	}
+
+	if playerIdx == -1 {
 		return
 	}
 
-	r.broadcast.Unset(p)
-	delete(r.players, p)
-	delete(r.playerInGame, p)
+	r.broadcast.Unset(p.conn)
+	r.playerInGame[playerIdx] = false
+	r.players[playerIdx] = r.players[r.numPlayers-1]
+	r.players[r.numPlayers-1] = nil
 
 	r.numPlayers--
 }
@@ -37,9 +44,9 @@ func (r *room) tryAddPlayer(p *player) bool {
 	}
 
 	// Add player to room
-	r.players[p] = p
-	r.playerInGame[p] = false
-	r.broadcast.Set(p)
+	r.players[r.numPlayers] = p
+	r.playerInGame[r.numPlayers] = false
+	r.broadcast.Set(p.conn)
 	r.numPlayers++
 	p.room = r
 

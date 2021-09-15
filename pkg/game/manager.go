@@ -15,7 +15,7 @@ import (
 type Manager struct {
 	port          int
 	rooms         []*room
-	players       map[network.Connection]*player
+	players       map[string]*player
 	numPlayers    uint8
 	maxPlayers    uint8
 	motd          string
@@ -165,7 +165,7 @@ func (m *Manager) sendPlayerInfo(conn network.Connection) {
 func (m *Manager) removePlayer(conn network.Connection) {
 	var p *player
 	var ok bool
-	if p, ok = m.players[conn]; !ok {
+	if p, ok = m.players[conn.Addr().String()]; !ok {
 		return
 	}
 
@@ -173,8 +173,8 @@ func (m *Manager) removePlayer(conn network.Connection) {
 		p.room.removePlayer(p)
 	}
 
-	m.broadcast.Unset(p)
-	delete(m.players, p)
+	m.broadcast.Unset(conn)
+	delete(m.players, conn.Addr().String())
 
 	m.numPlayers--
 }
@@ -188,7 +188,7 @@ func (m *Manager) tryAddPlayer(p *player) bool {
 	// Try to add the player to an existing room
 	for _, r := range m.rooms {
 		if r.tryAddPlayer(p) {
-			m.broadcast.Set(p)
+			m.broadcast.Set(p.conn)
 			m.numPlayers++
 			return true
 		}
@@ -196,9 +196,9 @@ func (m *Manager) tryAddPlayer(p *player) bool {
 
 	// Create a new room
 	newRoom := &room{
-		players:      make(map[network.Connection]*player, ROOMMAXPLAYERS),
+		players:      make([]*player, ROOMMAXPLAYERS),
 		numPlayers:   0,
-		playerInGame: make(map[network.Connection]bool, ROOMMAXPLAYERS),
+		playerInGame: make([]bool, ROOMMAXPLAYERS),
 		state:        "setup",
 		broadcast:    network.BroadcastConnection{Connections: make([]network.Connection, ROOMMAXPLAYERS)},
 	}
