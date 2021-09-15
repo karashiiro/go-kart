@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/karashiiro/gokart/pkg/colortext"
 	"github.com/karashiiro/gokart/pkg/game"
 )
 
@@ -12,9 +13,12 @@ func main() {
 		MaxPlayers:    15,
 		Motd:          "gokart server active",
 		ServerContext: "",
-		ServerName:    string([]byte{0x88}) + "gokart server",
-		KartSpeed:     game.KartSpeedNormal,
-		GameType:      game.GameTypeRace,
+		ServerName: colortext.
+			New().
+			AppendTextColored("gokart server", colortext.Cyan).
+			Build(),
+		KartSpeed: game.KartSpeedNormal,
+		GameType:  game.GameTypeRace,
 	})
 	if err != nil {
 		log.Fatalln(err)
