@@ -1,8 +1,10 @@
 package network
 
+type Opcode = uint8
+
 const (
-	PT_NOTHING   = iota // To send a nop through the network. ^_~
-	PT_SERVERCFG        // Server config used in start game
+	PT_NOTHING   Opcode = iota // To send a nop through the network. ^_~
+	PT_SERVERCFG               // Server config used in start game
 	// (must stay 1 for backwards compatibility).
 	// This is a positive response to a CLIENTJOIN request.
 	PT_CLIENTCMD     // Ticcmd of the client.
