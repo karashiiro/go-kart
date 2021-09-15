@@ -12,7 +12,7 @@ func main() {
 		MaxPlayers:    15,
 		Motd:          "gokart server active",
 		ServerContext: "",
-		ServerName:    "gokart server",
+		ServerName:    string([]byte{0x88}) + "gokart server",
 		KartSpeed:     game.KartSpeedNormal,
 		GameType:      game.GameTypeRace,
 	})
