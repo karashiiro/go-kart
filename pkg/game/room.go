@@ -2,12 +2,14 @@ package game
 
 import "github.com/karashiiro/gokart/pkg/network"
 
+const ROOMMAXPLAYERS = 15
+
 type room struct {
 	players      []*player
 	numPlayers   int
 	playerInGame []bool
 	state        string
-	broadcast    network.Connection
+	broadcast    network.BroadcastConnection
 }
 
 func (r *room) tryAddPlayer(p *player) bool {
@@ -17,13 +19,14 @@ func (r *room) tryAddPlayer(p *player) bool {
 	}
 
 	// Room is full, or name is taken
-	if r.numPlayers >= 15 || !p.isNameGood(r) {
+	if r.numPlayers >= ROOMMAXPLAYERS || !p.isNameGood(r) {
 		return false
 	}
 
 	// Add player to room
 	r.players[r.numPlayers] = p
 	r.playerInGame[r.numPlayers] = false
+	r.broadcast.Set(p.conn, r.numPlayers)
 	r.numPlayers++
 
 	return true
