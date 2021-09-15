@@ -7,15 +7,17 @@ type Manager struct {
 	players    []player
 	numPlayers int
 	maxPlayers int
+	motd       string
 	broadcast  network.Connection
 }
 
-func New(maxPlayers int) *Manager {
+func New(maxPlayers int, motd string) *Manager {
 	return &Manager{
 		rooms:      nil,
 		players:    make([]player, maxPlayers),
 		numPlayers: 0,
 		maxPlayers: maxPlayers,
+		motd:       motd,
 	}
 }
 
