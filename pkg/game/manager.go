@@ -2,12 +2,18 @@ package game
 
 type Manager struct {
 	rooms      []room
-	players    int
+	players    []player
+	numPlayers int
 	maxPlayers int
 }
 
 func New(maxPlayers int) *Manager {
-	return &Manager{maxPlayers: maxPlayers}
+	return &Manager{
+		rooms:      nil,
+		players:    make([]player, maxPlayers),
+		numPlayers: 0,
+		maxPlayers: maxPlayers,
+	}
 }
 
 func (m *Manager) Run() {
