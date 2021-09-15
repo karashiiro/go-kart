@@ -5,10 +5,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/karashiiro/gokart/pkg/doom"
 	"github.com/karashiiro/gokart/pkg/network"
 )
-
-const MAXPLAYERNAME = 21
 
 type player struct {
 	name string
@@ -17,7 +16,7 @@ type player struct {
 
 func (p *player) isNameGood(r *room) bool {
 	// Empty or too long
-	if len(p.name) == 0 || len(p.name) > MAXPLAYERNAME {
+	if len(p.name) == 0 || len(p.name) > doom.MAXPLAYERNAME {
 		return false
 	}
 
