@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-const MAXPLAYERNAME = 32
+const MAXPLAYERNAME = 21
 
 type room struct {
 	players      []*player
