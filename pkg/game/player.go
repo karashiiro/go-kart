@@ -51,7 +51,7 @@ func (p *player) isNameGood(r *room) bool {
 
 	// Check if a player is currently using the name, case-insensitively
 	for i, otherPlayer := range r.players {
-		if otherPlayer != p && r.playerInGame[i] && strings.EqualFold(otherPlayer.name, p.name) {
+		if otherPlayer != nil && otherPlayer != p && r.playerInGame[i] && strings.EqualFold(otherPlayer.name, p.name) {
 			// We shouldn't kick people out just because
 			// they joined the game with the same name
 			// as someone else -- modify the name instead.
