@@ -32,7 +32,7 @@ func New(maxPlayers int, motd string, serverContext string) (*Manager, error) {
 		maxPlayers:    maxPlayers,
 		motd:          motd,
 		serverContext: serverContext,
-		broadcast:     network.BroadcastConnection{},
+		broadcast:     network.BroadcastConnection{Connections: make([]network.Connection, maxPlayers)},
 	}, nil
 }
 
