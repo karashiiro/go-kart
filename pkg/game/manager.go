@@ -155,15 +155,18 @@ func (m *Manager) sendPlayerInfo(addr net.Addr) {
 
 func (m *Manager) sendPacket(addr net.Addr, data interface{}) {
 	buf := new(bytes.Buffer)
-	binary.Write(buf, binary.LittleEndian, data)
+	err := binary.Write(buf, binary.LittleEndian, data)
+	if err != nil {
+		fmt.Println("binary.Write failed:", err)
+	}
 
 	sendBuf := buf.Bytes()
 	checksum := gamenet.NetBufferChecksum(sendBuf[4:])
 	binary.LittleEndian.PutUint32(sendBuf[0:4], checksum)
 
-	_, err := m.server.WriteTo(sendBuf, addr)
+	_, err = m.server.WriteTo(sendBuf, addr)
 	if err != nil {
-		fmt.Println("binary.Write failed:", err)
+		fmt.Println("UDPConn.WriteTo failed:", err)
 	}
 }
 
