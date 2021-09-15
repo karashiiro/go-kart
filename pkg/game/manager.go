@@ -158,22 +158,13 @@ func (m *Manager) sendPacket(addr net.Addr, data interface{}) {
 	binary.Write(buf, binary.LittleEndian, data)
 
 	sendBuf := buf.Bytes()
-	checksum := netBufferChecksum(sendBuf[4:])
+	checksum := gamenet.NetBufferChecksum(sendBuf[4:])
 	binary.LittleEndian.PutUint32(sendBuf[0:4], checksum)
 
 	_, err := m.server.WriteTo(sendBuf, addr)
 	if err != nil {
 		fmt.Println("binary.Write failed:", err)
 	}
-}
-
-func netBufferChecksum(buf []byte) uint32 {
-	checksum := uint32(0x1234567)
-	length := len(buf)
-	for i := 0; i < length; i++ {
-		checksum += uint32(buf[i]) * uint32(i+1)
-	}
-	return checksum
 }
 
 func (m *Manager) tryAddPlayer(p *player) bool {
