@@ -7,9 +7,18 @@ import (
 )
 
 func main() {
-	m, err := game.New(15, "gokart server", "")
+	m, err := game.New(&game.ManagerOptions{
+		Port:          5029,
+		MaxPlayers:    15,
+		Motd:          "gokart server active",
+		ServerContext: "",
+		ServerName:    "gokart server",
+		KartSpeed:     game.KartSpeedNormal,
+		GameType:      game.GameTypeRace,
+	})
 	if err != nil {
 		log.Fatalln(err)
 	}
+	defer m.Close()
 	m.Run()
 }

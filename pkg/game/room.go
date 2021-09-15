@@ -6,7 +6,7 @@ const ROOMMAXPLAYERS = 15
 
 type room struct {
 	players      []*player
-	numPlayers   int
+	numPlayers   uint8
 	playerInGame []bool
 	state        string
 	broadcast    network.BroadcastConnection
@@ -26,7 +26,7 @@ func (r *room) tryAddPlayer(p *player) bool {
 	// Add player to room
 	r.players[r.numPlayers] = p
 	r.playerInGame[r.numPlayers] = false
-	r.broadcast.Set(p.conn, r.numPlayers)
+	r.broadcast.Set(p.conn, int(r.numPlayers))
 	r.numPlayers++
 
 	return true
