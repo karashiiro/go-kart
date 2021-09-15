@@ -69,3 +69,9 @@ type PlayerInfo struct {
 	Score           uint32
 	SecondsInServer uint16
 }
+
+type ServerRefusePak struct {
+	PacketHeader
+
+	Reason [255]byte
+}

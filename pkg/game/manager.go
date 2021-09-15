@@ -162,6 +162,21 @@ func (m *Manager) sendPlayerInfo(conn network.Connection) {
 	}
 }
 
+func (m *Manager) sendRefuse(conn network.Connection, reason string) {
+	refuse := gamenet.ServerRefusePak{
+		PacketHeader: gamenet.PacketHeader{
+			PacketType: gamenet.PT_SERVERREFUSE,
+		},
+	}
+
+	copy(refuse.Reason[:], []byte(reason))
+
+	err := gamenet.SendPacket(conn, &refuse)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
 func (m *Manager) removePlayer(conn network.Connection) {
 	var p *player
 	var ok bool
