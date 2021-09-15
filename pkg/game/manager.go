@@ -14,6 +14,7 @@ import (
 )
 
 type Manager struct {
+	port          int
 	rooms         []*room
 	players       []player
 	numPlayers    uint8
@@ -46,12 +47,8 @@ func New(opts *ManagerOptions) (*Manager, error) {
 		return nil, errors.New("server context must be at most 8 bytes")
 	}
 
-	server, err := net.ListenUDP("udp", &net.UDPAddr{Port: opts.Port})
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	return &Manager{
+		port:          opts.Port,
 		rooms:         nil,
 		players:       make([]player, opts.MaxPlayers),
 		numPlayers:    0,
@@ -62,7 +59,6 @@ func New(opts *ManagerOptions) (*Manager, error) {
 		kartSpeed:     opts.KartSpeed,
 		gameType:      opts.GameType,
 		broadcast:     network.BroadcastConnection{Connections: make([]network.Connection, opts.MaxPlayers)},
-		server:        server,
 	}, nil
 }
 
@@ -71,6 +67,12 @@ func (m *Manager) Close() {
 }
 
 func (m *Manager) Run() {
+	server, err := net.ListenUDP("udp", &net.UDPAddr{Port: m.port})
+	if err != nil {
+		log.Fatalln(err)
+	}
+	m.server = server
+
 	for {
 		data := make([]byte, 1024)
 		n, c, err := m.server.ReadFrom(data)
