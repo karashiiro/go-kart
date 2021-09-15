@@ -23,7 +23,7 @@ type Manager struct {
 	serverName    string
 	kartSpeed     KartSpeed
 	gameType      GameType
-	broadcast     network.BroadcastConnection
+	broadcast     *network.BroadcastConnection
 	server        *net.UDPConn
 }
 
@@ -56,7 +56,7 @@ func New(opts *ManagerOptions) (*Manager, error) {
 		serverName:    opts.ServerName,
 		kartSpeed:     opts.KartSpeed,
 		gameType:      opts.GameType,
-		broadcast:     network.BroadcastConnection{Connections: make([]network.Connection, opts.MaxPlayers)},
+		broadcast:     network.NewBroadcastConnection(int(opts.MaxPlayers)),
 	}, nil
 }
 
@@ -204,7 +204,7 @@ func (m *Manager) tryAddPlayer(p *player) bool {
 		numPlayers:   0,
 		playerInGame: make([]bool, ROOMMAXPLAYERS),
 		state:        "setup",
-		broadcast:    network.BroadcastConnection{Connections: make([]network.Connection, ROOMMAXPLAYERS)},
+		broadcast:    network.NewBroadcastConnection(ROOMMAXPLAYERS),
 	}
 	m.rooms = append(m.rooms, newRoom)
 	newRoom.tryAddPlayer(p)

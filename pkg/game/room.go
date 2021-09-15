@@ -9,7 +9,7 @@ type room struct {
 	numPlayers   uint8
 	playerInGame []bool
 	state        string
-	broadcast    network.BroadcastConnection
+	broadcast    *network.BroadcastConnection
 }
 
 func (r *room) removePlayer(p *player) {
