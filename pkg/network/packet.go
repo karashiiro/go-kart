@@ -1,5 +1,7 @@
 package network
 
+const PACKETVERSION = 0
+
 const MAXAPPLICATION = 16
 
 type PacketHeader struct {
