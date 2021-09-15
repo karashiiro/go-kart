@@ -1,10 +1,13 @@
 package game
 
+import "github.com/karashiiro/gokart/pkg/network"
+
 type Manager struct {
 	rooms      []*room
 	players    []player
 	numPlayers int
 	maxPlayers int
+	broadcast  network.Connection
 }
 
 func New(maxPlayers int) *Manager {

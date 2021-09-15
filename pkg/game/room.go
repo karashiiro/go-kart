@@ -1,10 +1,13 @@
 package game
 
+import "github.com/karashiiro/gokart/pkg/network"
+
 type room struct {
 	players      []*player
 	numPlayers   int
 	playerInGame []bool
 	state        string
+	broadcast    network.Connection
 }
 
 func (r *room) tryAddPlayer(p *player) bool {
