@@ -61,6 +61,10 @@ func New(opts *ManagerOptions) (*Manager, error) {
 }
 
 func (m *Manager) Close() {
+	shutdown := gamenet.PacketHeader{
+		PacketType: gamenet.PT_SERVERSHUTDOWN,
+	}
+	gamenet.SendPacket(m.broadcast, &shutdown)
 	m.server.Close()
 }
 
