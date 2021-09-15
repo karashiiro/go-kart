@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"log"
 	"net"
 
@@ -75,15 +74,15 @@ func (m *Manager) Run() {
 
 	for {
 		data := make([]byte, 1024)
-		n, c, err := m.server.ReadFrom(data)
+		n, addr, err := m.server.ReadFrom(data)
 		if err != nil {
 			log.Fatalln(err)
 		}
-		go m.handleConnection(n, c, data)
+		go m.handleConnection(n, network.NewUDPConnection(m.server, addr), data)
 	}
 }
 
-func (m *Manager) handleConnection(n int, addr net.Addr, data []byte) {
+func (m *Manager) handleConnection(n int, conn network.Connection, data []byte) {
 	header := gamenet.PacketHeader{}
 	buf := bytes.NewReader(data)
 	binary.Read(buf, binary.LittleEndian, &header)
@@ -93,15 +92,15 @@ func (m *Manager) handleConnection(n int, addr net.Addr, data []byte) {
 		askInfo := gamenet.AskInfoPak{}
 		buf = bytes.NewReader(data)
 		binary.Read(buf, binary.LittleEndian, &askInfo)
-		m.sendServerInfo(addr, askInfo.Time)
-		m.sendPlayerInfo(addr)
+		m.sendServerInfo(conn, askInfo.Time)
+		m.sendPlayerInfo(conn)
 	}
 }
 
 const SV_SPEEDMASK uint8 = 0x03
 const SV_DEDICATED uint8 = 0x40
 
-func (m *Manager) sendServerInfo(addr net.Addr, serverTime uint32) {
+func (m *Manager) sendServerInfo(conn network.Connection, serverTime uint32) {
 	serverInfo := gamenet.ServerInfoPak{
 		PacketHeader: gamenet.PacketHeader{
 			PacketType: gamenet.PT_SERVERINFO,
@@ -127,10 +126,13 @@ func (m *Manager) sendServerInfo(addr net.Addr, serverTime uint32) {
 	copy(serverInfo.MapTitle[:], []byte("Unknown"))
 	serverInfo.MapTitle[32] = 0 // Null out the last byte in case of an overrun
 
-	m.sendPacket(addr, &serverInfo)
+	err := gamenet.SendPacket(conn, &serverInfo)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
-func (m *Manager) sendPlayerInfo(addr net.Addr) {
+func (m *Manager) sendPlayerInfo(conn network.Connection) {
 	playerInfo := gamenet.PlayerInfoPak{
 		PacketHeader: gamenet.PacketHeader{
 			PacketType: gamenet.PT_PLAYERINFO,
@@ -150,23 +152,9 @@ func (m *Manager) sendPlayerInfo(addr net.Addr) {
 		player.Name[doom.MAXPLAYERNAME] = 0 // Null out the last byte in case of an overrun
 	}
 
-	m.sendPacket(addr, &playerInfo)
-}
-
-func (m *Manager) sendPacket(addr net.Addr, data interface{}) {
-	buf := new(bytes.Buffer)
-	err := binary.Write(buf, binary.LittleEndian, data)
+	err := gamenet.SendPacket(conn, &playerInfo)
 	if err != nil {
-		fmt.Println("binary.Write failed:", err)
-	}
-
-	sendBuf := buf.Bytes()
-	checksum := gamenet.NetBufferChecksum(sendBuf[4:])
-	binary.LittleEndian.PutUint32(sendBuf[0:4], checksum)
-
-	_, err = m.server.WriteTo(sendBuf, addr)
-	if err != nil {
-		fmt.Println("UDPConn.WriteTo failed:", err)
+		log.Println(err)
 	}
 }
 

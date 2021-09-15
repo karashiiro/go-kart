@@ -1,5 +1,5 @@
 package network
 
 type Connection interface {
-	Send(data interface{}) error
+	Send(data []byte) error
 }

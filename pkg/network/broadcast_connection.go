@@ -4,7 +4,9 @@ type BroadcastConnection struct {
 	Connections []Connection
 }
 
-func (b BroadcastConnection) Send(data interface{}) error {
+var _ Connection = BroadcastConnection{}
+
+func (b BroadcastConnection) Send(data []byte) error {
 	for _, conn := range b.Connections {
 		// Ignore error, we should log this
 		_ = conn.Send(data)
@@ -16,5 +18,3 @@ func (b BroadcastConnection) Send(data interface{}) error {
 func (b *BroadcastConnection) Set(conn Connection, i int) {
 	b.Connections[i] = conn
 }
-
-var _ Connection = BroadcastConnection{}
