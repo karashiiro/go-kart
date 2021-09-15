@@ -10,6 +10,7 @@ import (
 	"github.com/karashiiro/gokart/pkg/doom"
 	"github.com/karashiiro/gokart/pkg/gamenet"
 	"github.com/karashiiro/gokart/pkg/network"
+	"github.com/karashiiro/gokart/pkg/text"
 )
 
 type Manager struct {
@@ -28,22 +29,17 @@ type Manager struct {
 }
 
 type ManagerOptions struct {
-	Port          int
-	MaxPlayers    uint8
-	Motd          string
-	ServerContext string
-	ServerName    string
-	KartSpeed     KartSpeed
-	GameType      GameType
+	Port       int
+	MaxPlayers uint8
+	Motd       string
+	ServerName string
+	KartSpeed  KartSpeed
+	GameType   GameType
 }
 
 func New(opts *ManagerOptions) (*Manager, error) {
 	if len([]byte(opts.Motd)) > 254 {
 		return nil, errors.New("motd must be at most 254 bytes")
-	}
-
-	if len([]byte(opts.ServerContext)) > 8 {
-		return nil, errors.New("server context must be at most 8 bytes")
 	}
 
 	return &Manager{
@@ -52,7 +48,7 @@ func New(opts *ManagerOptions) (*Manager, error) {
 		numPlayers:    0,
 		maxPlayers:    opts.MaxPlayers,
 		motd:          opts.Motd,
-		serverContext: opts.ServerContext,
+		serverContext: text.RandStringBytes(8),
 		serverName:    opts.ServerName,
 		kartSpeed:     opts.KartSpeed,
 		gameType:      opts.GameType,

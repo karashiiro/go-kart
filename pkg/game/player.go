@@ -1,12 +1,12 @@
 package game
 
 import (
-	"math/rand"
 	"strconv"
 	"strings"
 
 	"github.com/karashiiro/gokart/pkg/doom"
 	"github.com/karashiiro/gokart/pkg/network"
+	"github.com/karashiiro/gokart/pkg/text"
 )
 
 type player struct {
@@ -69,7 +69,7 @@ func (p *player) isNameGood(r *room) bool {
 				}
 			} else if len(p.name) == 1 {
 				// last ditch effort
-				p.name = randStringBytes(10)
+				p.name = text.RandStringBytes(10)
 				if !p.isNameGood(r) {
 					return false
 				}
@@ -81,14 +81,4 @@ func (p *player) isNameGood(r *room) bool {
 	}
 
 	return true
-}
-
-const LETTERBYTES = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-func randStringBytes(n int) string {
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = LETTERBYTES[rand.Intn(len(LETTERBYTES))]
-	}
-	return string(b)
 }

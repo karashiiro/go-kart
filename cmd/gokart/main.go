@@ -9,10 +9,9 @@ import (
 
 func main() {
 	m, err := game.New(&game.ManagerOptions{
-		Port:          5029,
-		MaxPlayers:    15,
-		Motd:          "gokart server active",
-		ServerContext: "",
+		Port:       5029,
+		MaxPlayers: 15,
+		Motd:       "gokart server active",
 		ServerName: colortext.
 			New().
 			AppendTextColored("gokart server", colortext.Cyan).
