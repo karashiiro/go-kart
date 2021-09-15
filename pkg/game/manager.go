@@ -1,25 +1,39 @@
 package game
 
-import "github.com/karashiiro/gokart/pkg/network"
+import (
+	"errors"
+
+	"github.com/karashiiro/gokart/pkg/network"
+)
 
 type Manager struct {
-	rooms      []*room
-	players    []player
-	numPlayers int
-	maxPlayers int
-	motd       string
-	broadcast  network.BroadcastConnection
+	rooms         []*room
+	players       []player
+	numPlayers    int
+	maxPlayers    int
+	motd          string
+	serverContext string
+	broadcast     network.BroadcastConnection
 }
 
-func New(maxPlayers int, motd string) *Manager {
-	return &Manager{
-		rooms:      nil,
-		players:    make([]player, maxPlayers),
-		numPlayers: 0,
-		maxPlayers: maxPlayers,
-		motd:       motd,
-		broadcast:  network.BroadcastConnection{},
+func New(maxPlayers int, motd string, serverContext string) (*Manager, error) {
+	if len([]byte(motd)) > 254 {
+		return nil, errors.New("motd must be at most 254 bytes")
 	}
+
+	if len([]byte(serverContext)) > 8 {
+		return nil, errors.New("server context must be at most 8 bytes")
+	}
+
+	return &Manager{
+		rooms:         nil,
+		players:       make([]player, maxPlayers),
+		numPlayers:    0,
+		maxPlayers:    maxPlayers,
+		motd:          motd,
+		serverContext: serverContext,
+		broadcast:     network.BroadcastConnection{},
+	}, nil
 }
 
 func (m *Manager) Run() {
