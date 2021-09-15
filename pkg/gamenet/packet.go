@@ -1,4 +1,4 @@
-package network
+package gamenet
 
 import "github.com/karashiiro/gokart/pkg/doom"
 
@@ -55,7 +55,7 @@ type ServerInfoPak struct {
 type PlayerInfoPak struct {
 	PacketHeader
 
-	Players [doom.MASTERSERVER_MAXPLAYERS]PlayerInfo
+	Players [MASTERSERVER_MAXPLAYERS]PlayerInfo
 }
 
 // PlayerInfo represents shorter player information for external use.

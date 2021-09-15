@@ -9,6 +9,7 @@ import (
 	"net"
 
 	"github.com/karashiiro/gokart/pkg/doom"
+	"github.com/karashiiro/gokart/pkg/gamenet"
 	"github.com/karashiiro/gokart/pkg/network"
 )
 
@@ -81,13 +82,13 @@ func (m *Manager) Run() {
 }
 
 func (m *Manager) handleConnection(n int, addr net.Addr, data []byte) {
-	header := network.PacketHeader{}
+	header := gamenet.PacketHeader{}
 	buf := bytes.NewReader(data)
 	binary.Read(buf, binary.LittleEndian, &header)
 
 	switch header.PacketType {
-	case network.PT_ASKINFO:
-		askInfo := network.AskInfoPak{}
+	case gamenet.PT_ASKINFO:
+		askInfo := gamenet.AskInfoPak{}
 		buf = bytes.NewReader(data)
 		binary.Read(buf, binary.LittleEndian, &askInfo)
 		m.sendServerInfo(addr, askInfo.Time)
@@ -99,12 +100,12 @@ const SV_SPEEDMASK uint8 = 0x03
 const SV_DEDICATED uint8 = 0x40
 
 func (m *Manager) sendServerInfo(addr net.Addr, serverTime uint32) {
-	serverInfo := network.ServerInfoPak{
-		PacketHeader: network.PacketHeader{
-			PacketType: network.PT_SERVERINFO,
+	serverInfo := gamenet.ServerInfoPak{
+		PacketHeader: gamenet.PacketHeader{
+			PacketType: gamenet.PT_SERVERINFO,
 		},
 		X255:           255,
-		PacketVersion:  network.PACKETVERSION,
+		PacketVersion:  gamenet.PACKETVERSION,
 		Version:        doom.VERSION,
 		Subversion:     doom.SUBVERSION,
 		Time:           serverTime,
@@ -128,9 +129,9 @@ func (m *Manager) sendServerInfo(addr net.Addr, serverTime uint32) {
 }
 
 func (m *Manager) sendPlayerInfo(addr net.Addr) {
-	playerInfo := network.PlayerInfoPak{
-		PacketHeader: network.PacketHeader{
-			PacketType: network.PT_PLAYERINFO,
+	playerInfo := gamenet.PlayerInfoPak{
+		PacketHeader: gamenet.PacketHeader{
+			PacketType: gamenet.PT_PLAYERINFO,
 		},
 	}
 

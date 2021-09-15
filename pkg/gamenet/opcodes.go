@@ -1,4 +1,4 @@
-package network
+package gamenet
 
 type Opcode = uint8
 
