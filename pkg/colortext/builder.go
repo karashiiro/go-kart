@@ -14,6 +14,7 @@ func (b *ColorTextBuilder) AppendText(text string) *ColorTextBuilder {
 }
 
 func (b *ColorTextBuilder) AppendTextColored(text string, color Color) *ColorTextBuilder {
+	b.buffer = append(b.buffer, []byte{byte(color)}...)
 	b.buffer = append(b.buffer, []byte(text)...)
 	return b
 }

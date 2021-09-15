@@ -1,6 +1,6 @@
 package colortext
 
-type Color uint8
+type Color byte
 
 const (
 	White Color = iota + 0x80
