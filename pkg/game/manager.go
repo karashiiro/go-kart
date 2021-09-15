@@ -188,7 +188,7 @@ func (m *Manager) tryAddPlayer(p *player) bool {
 	// Try to add the player to an existing room
 	for _, r := range m.rooms {
 		if r.tryAddPlayer(p) {
-			m.broadcast.Set(p, int(m.numPlayers))
+			m.broadcast.Set(p)
 			m.numPlayers++
 			return true
 		}
@@ -205,7 +205,7 @@ func (m *Manager) tryAddPlayer(p *player) bool {
 	m.rooms = append(m.rooms, newRoom)
 	newRoom.tryAddPlayer(p)
 
-	m.broadcast.Set(p.conn, int(m.numPlayers))
+	m.broadcast.Set(p.conn)
 	m.numPlayers++
 
 	return true

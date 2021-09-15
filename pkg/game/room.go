@@ -39,7 +39,7 @@ func (r *room) tryAddPlayer(p *player) bool {
 	// Add player to room
 	r.players[p] = p
 	r.playerInGame[p] = false
-	r.broadcast.Set(p, int(r.numPlayers))
+	r.broadcast.Set(p)
 	r.numPlayers++
 	p.room = r
 
