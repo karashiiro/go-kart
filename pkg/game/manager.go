@@ -15,7 +15,7 @@ import (
 type Manager struct {
 	port          int
 	rooms         []*room
-	players       []player
+	players       map[network.Connection]*player
 	numPlayers    uint8
 	maxPlayers    uint8
 	motd          string
@@ -49,7 +49,6 @@ func New(opts *ManagerOptions) (*Manager, error) {
 	return &Manager{
 		port:          opts.Port,
 		rooms:         nil,
-		players:       make([]player, opts.MaxPlayers),
 		numPlayers:    0,
 		maxPlayers:    opts.MaxPlayers,
 		motd:          opts.Motd,
@@ -94,6 +93,10 @@ func (m *Manager) handleConnection(n int, conn network.Connection, data []byte) 
 		binary.Read(buf, binary.LittleEndian, &askInfo)
 		m.sendServerInfo(conn, askInfo.Time)
 		m.sendPlayerInfo(conn)
+	case gamenet.PT_NODETIMEOUT:
+		fallthrough
+	case gamenet.PT_CLIENTQUIT:
+		m.removePlayer(conn)
 	}
 }
 
@@ -140,22 +143,40 @@ func (m *Manager) sendPlayerInfo(conn network.Connection) {
 	}
 
 	// Send as many players as we can, e.g. min(numPlayers, doom.MASTERSERVER_MAXPLAYERS)
-	for i, player := range playerInfo.Players {
+	i := 0
+	for _, player := range m.players {
 		if i >= int(m.numPlayers) {
-			player.Node = 255
+			playerInfo.Players[i].Node = 255
 			continue
 		}
 
-		player.Node = uint8(i)
+		playerInfo.Players[i].Node = uint8(i)
 
-		copy(player.Name[:], []byte(m.players[i].name))
-		player.Name[doom.MAXPLAYERNAME] = 0 // Null out the last byte in case of an overrun
+		copy(playerInfo.Players[i].Name[:], []byte(player.name))
+		playerInfo.Players[i].Name[doom.MAXPLAYERNAME] = 0 // Null out the last byte in case of an overrun
 	}
 
 	err := gamenet.SendPacket(conn, &playerInfo)
 	if err != nil {
 		log.Println(err)
 	}
+}
+
+func (m *Manager) removePlayer(conn network.Connection) {
+	var p *player
+	var ok bool
+	if p, ok = m.players[conn]; !ok {
+		return
+	}
+
+	if p.room != nil {
+		p.room.removePlayer(p)
+	}
+
+	m.broadcast.Unset(p)
+	delete(m.players, p)
+
+	m.numPlayers--
 }
 
 func (m *Manager) tryAddPlayer(p *player) bool {
@@ -167,7 +188,7 @@ func (m *Manager) tryAddPlayer(p *player) bool {
 	// Try to add the player to an existing room
 	for _, r := range m.rooms {
 		if r.tryAddPlayer(p) {
-			m.broadcast.Set(p.conn, int(m.numPlayers))
+			m.broadcast.Set(p, int(m.numPlayers))
 			m.numPlayers++
 			return true
 		}
@@ -175,9 +196,9 @@ func (m *Manager) tryAddPlayer(p *player) bool {
 
 	// Create a new room
 	newRoom := &room{
-		players:      make([]*player, ROOMMAXPLAYERS),
+		players:      make(map[network.Connection]*player, ROOMMAXPLAYERS),
 		numPlayers:   0,
-		playerInGame: make([]bool, ROOMMAXPLAYERS),
+		playerInGame: make(map[network.Connection]bool, ROOMMAXPLAYERS),
 		state:        "setup",
 		broadcast:    network.BroadcastConnection{Connections: make([]network.Connection, ROOMMAXPLAYERS)},
 	}

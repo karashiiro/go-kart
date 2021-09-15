@@ -55,7 +55,7 @@ type ServerInfoPak struct {
 type PlayerInfoPak struct {
 	PacketHeader
 
-	Players [MASTERSERVER_MAXPLAYERS]PlayerInfo
+	Players [doom.MASTERSERVER_MAXPLAYERS]PlayerInfo
 }
 
 // PlayerInfo represents shorter player information for external use.

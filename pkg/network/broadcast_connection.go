@@ -8,6 +8,10 @@ var _ Connection = BroadcastConnection{}
 
 func (b BroadcastConnection) Send(data []byte) error {
 	for _, conn := range b.Connections {
+		if conn == nil {
+			continue
+		}
+
 		// Ignore error, we should log this
 		_ = conn.Send(data)
 	}
@@ -17,4 +21,12 @@ func (b BroadcastConnection) Send(data []byte) error {
 
 func (b *BroadcastConnection) Set(conn Connection, i int) {
 	b.Connections[i] = conn
+}
+
+func (b *BroadcastConnection) Unset(conn Connection) {
+	for i, c := range b.Connections {
+		if c == conn {
+			b.Connections[i] = nil
+		}
+	}
 }

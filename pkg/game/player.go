@@ -12,6 +12,11 @@ import (
 type player struct {
 	name string
 	conn network.Connection
+	room *room
+}
+
+func (p player) Send(data []byte) error {
+	return p.conn.Send(data)
 }
 
 func (p *player) isNameGood(r *room) bool {
