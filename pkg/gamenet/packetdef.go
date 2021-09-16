@@ -8,8 +8,8 @@ const MAXAPPLICATION = 16
 
 type PacketHeader struct {
 	Checksum  uint32
-	Ack       uint8
-	AckReturn uint8
+	Ack       uint8 // If not zero the node asks for acknowledgement, the receiver must resend the ack
+	AckReturn uint8 // The return of the ack number
 
 	PacketType Opcode
 	Reserved   uint8 // Padding
