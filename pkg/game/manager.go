@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"log"
 	"net"
 
@@ -159,6 +160,12 @@ func (m *Manager) sendPlayerInfo(conn network.Connection) {
 	err := gamenet.SendPacket(conn, &playerInfo)
 	if err != nil {
 		log.Println(err)
+	}
+}
+
+func (m *Manager) handleConnect(conn network.Connection) {
+	if m.numPlayers >= m.maxPlayers {
+		m.sendRefuse(conn, fmt.Sprintf("Maximum players reached: %d", m.maxPlayers))
 	}
 }
 
