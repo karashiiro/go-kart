@@ -15,6 +15,57 @@ type PacketHeader struct {
 	Reserved   uint8 // Padding
 }
 
+type TicCmd struct {
+	ForwardMove int8  // -MAXPLMOVE to MAXPLMOVE (50)
+	SideMove    int8  // -MAXPLMOVE to MAXPLMOVE (50)
+	AngleTurn   int16 // <<16 for angle delta - saved as 1 byte into demos
+	Aiming      int16 // vertical aiming, see G_BuildTicCmd
+	Buttons     uint16
+	DriftTurn   int16 // SRB2Kart: Used for getting drift turn speed
+	Latency     uint8 // Netgames: how many tics ago was this ticcmd generated from this player's end?
+}
+
+// Client to server packet
+type ClientCmdPak struct {
+	ClientTic   uint8
+	ResendFrom  uint8
+	Consistency int16
+	Cmd         TicCmd
+}
+
+// Splitscreen packet
+// WARNING: must have the same format of clientcmd_pak, for more easy use
+type Client2CmdPak struct {
+	ClientTic   uint8
+	ResendFrom  uint8
+	Consistency int16
+	Cmd         TicCmd
+	Cmd2        TicCmd
+}
+
+// 3P Splitscreen packet
+// WARNING: must have the same format of clientcmd_pak, for more easy use
+type Client3CmdPak struct {
+	ClientTic   uint8
+	ResendFrom  uint8
+	Consistency int16
+	Cmd         TicCmd
+	Cmd2        TicCmd
+	Cmd3        TicCmd
+}
+
+// 4P Splitscreen packet
+// WARNING: must have the same format of clientcmd_pak, for more easy use
+type Client4CmdPak struct {
+	ClientTic   uint8
+	ResendFrom  uint8
+	Consistency int16
+	Cmd         TicCmd
+	Cmd2        TicCmd
+	Cmd3        TicCmd
+	Cmd4        TicCmd
+}
+
 // Sent to client when all consistency data
 // for players has been restored
 type ResynchEndPak struct {
