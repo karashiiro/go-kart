@@ -86,15 +86,22 @@ func (m *Manager) Run() {
 		// d_clisrv.h notes 64kB packets under doomdata_t, but those
 		// are probably junk numbers.
 		data := make([]byte, 1024)
-		n, addr, err := m.server.ReadFrom(data)
+		_, addr, err := m.server.ReadFrom(data)
 		if err != nil {
 			log.Fatalln(err)
 		}
-		go m.handleConnection(n, network.NewUDPConnection(m.server, addr), data)
+
+		var p *player
+		var ok bool
+		if p, ok = m.players[addr.String()]; ok {
+			go m.handlePacketFromPlayer(p, data)
+		} else {
+			go m.handlePacketFromAwayNode(network.NewUDPConnection(m.server, addr), data)
+		}
 	}
 }
 
-func (m *Manager) handleConnection(n int, conn network.Connection, data []byte) {
+func (m *Manager) handlePacketFromAwayNode(conn network.Connection, data []byte) {
 	header := gamenet.PacketHeader{}
 	buf := bytes.NewReader(data)
 	binary.Read(buf, binary.LittleEndian, &header)
@@ -113,6 +120,14 @@ func (m *Manager) handleConnection(n int, conn network.Connection, data []byte) 
 	case gamenet.PT_CLIENTQUIT:
 		m.removePlayer(conn)
 	}
+}
+
+func (m *Manager) handlePacketFromPlayer(p *player, data []byte) {
+	header := gamenet.PacketHeader{}
+	buf := bytes.NewReader(data)
+	binary.Read(buf, binary.LittleEndian, &header)
+
+	log.Printf("Got packet from %s with type %d", p.name, header.PacketType)
 }
 
 func (m *Manager) handleConnect(conn network.Connection, cfg *gamenet.ClientConfigPak) {
