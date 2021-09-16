@@ -1,6 +1,10 @@
 package game
 
 import (
+	"bytes"
+	"encoding/binary"
+	"log"
+
 	"github.com/karashiiro/gokart/pkg/doom"
 	"github.com/karashiiro/gokart/pkg/gamenet"
 	"github.com/karashiiro/gokart/pkg/network"
@@ -14,6 +18,14 @@ type room struct {
 	playerInGame []bool
 	state        string // This is a made-up placeholder, TODO
 	broadcast    *network.BroadcastConnection
+}
+
+func (r *room) handlePacketFromPlayer(p *player, data []byte) {
+	header := gamenet.PacketHeader{}
+	buf := bytes.NewReader(data)
+	binary.Read(buf, binary.LittleEndian, &header)
+
+	log.Printf("Got packet from %s with type %d", p.name, header.PacketType)
 }
 
 // isTicCmdHacked returns true if speedhacking is detected

@@ -94,7 +94,10 @@ func (m *Manager) Run() {
 		var p *player
 		var ok bool
 		if p, ok = m.players[addr.String()]; ok {
-			go m.handlePacketFromPlayer(p, data)
+			// Player messages are handled by the room they're in
+			if p.room != nil {
+				go p.room.handlePacketFromPlayer(p, data)
+			}
 		} else {
 			go m.handlePacketFromAwayNode(network.NewUDPConnection(m.server, addr), data)
 		}
@@ -120,14 +123,6 @@ func (m *Manager) handlePacketFromAwayNode(conn network.Connection, data []byte)
 	case gamenet.PT_CLIENTQUIT:
 		m.removePlayer(conn)
 	}
-}
-
-func (m *Manager) handlePacketFromPlayer(p *player, data []byte) {
-	header := gamenet.PacketHeader{}
-	buf := bytes.NewReader(data)
-	binary.Read(buf, binary.LittleEndian, &header)
-
-	log.Printf("Got packet from %s with type %d", p.name, header.PacketType)
 }
 
 func (m *Manager) handleConnect(conn network.Connection, cfg *gamenet.ClientConfigPak) {
