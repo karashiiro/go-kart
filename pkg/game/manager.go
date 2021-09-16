@@ -114,7 +114,10 @@ func (m *Manager) handleConnect(conn network.Connection, cfg *gamenet.ClientConf
 		m.sendRefuse(conn, fmt.Sprintf("Number of local players\nwould exceed maximum: %d", m.maxPlayers))
 	} else if m.numPlayers >= m.maxPlayers {
 		m.sendRefuse(conn, fmt.Sprintf("Maximum players reached: %d", m.maxPlayers))
-	} else if cfg.LocalPlayers == 0 {
+	} else if cfg.LocalPlayers > 4 {
+		// We only have packet types for up to 4 splitscreen players
+		m.sendRefuse(conn, "Too many players from\nthis node.")
+	} else if cfg.LocalPlayers == 0 { // Stealth join?
 		m.sendRefuse(conn, "No players from\nthis node.")
 	}
 }
