@@ -99,6 +99,8 @@ func (m *Manager) handleConnection(n int, conn network.Connection, data []byte) 
 	buf := bytes.NewReader(data)
 	binary.Read(buf, binary.LittleEndian, &header)
 
+	log.Printf("Got packet from %s with type %d", conn.Addr().String(), header.PacketType)
+
 	switch header.PacketType {
 	case gamenet.PT_ASKINFO:
 		askInfo := gamenet.AskInfoPak{}
