@@ -1,4 +1,5 @@
 # gokart
+A reimplementation of [SRB2Kart's](https://github.com/STJr/Kart-Public) dedicated server in Go. WIP, just for fun.
 
 ## Acknowledgements
 repo|for what
