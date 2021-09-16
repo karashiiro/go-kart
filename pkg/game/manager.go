@@ -217,17 +217,6 @@ func (m *Manager) sendPlayerInfo(conn network.Connection) {
 	}
 }
 
-// isTicCmdHacked returns true if speedhacking is detected
-func (m *Manager) isTicCmdHacked(cmd *gamenet.TicCmd) bool {
-	if cmd.ForwardMove > doom.MAXPLMOVE || cmd.ForwardMove < -doom.MAXPLMOVE ||
-		cmd.SideMove > doom.MAXPLMOVE || cmd.SideMove < -doom.MAXPLMOVE ||
-		cmd.DriftTurn > doom.KART_FULLTURN || cmd.DriftTurn < -doom.KART_FULLTURN {
-		return true
-	}
-
-	return false
-}
-
 func (m *Manager) sendServerConfig(conn network.Connection) {
 	serverConfig := gamenet.ServerConfigPak{
 		PacketHeader: gamenet.PacketHeader{

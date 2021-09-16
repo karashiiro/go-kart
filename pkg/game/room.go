@@ -1,6 +1,10 @@
 package game
 
-import "github.com/karashiiro/gokart/pkg/network"
+import (
+	"github.com/karashiiro/gokart/pkg/doom"
+	"github.com/karashiiro/gokart/pkg/gamenet"
+	"github.com/karashiiro/gokart/pkg/network"
+)
 
 const ROOMMAXPLAYERS = 15
 
@@ -8,8 +12,19 @@ type room struct {
 	players      []*player
 	numPlayers   uint8
 	playerInGame []bool
-	state        string
+	state        string // This is a made-up placeholder, TODO
 	broadcast    *network.BroadcastConnection
+}
+
+// isTicCmdHacked returns true if speedhacking is detected
+func (r *room) isTicCmdHacked(cmd *gamenet.TicCmd) bool {
+	if cmd.ForwardMove > doom.MAXPLMOVE || cmd.ForwardMove < -doom.MAXPLMOVE ||
+		cmd.SideMove > doom.MAXPLMOVE || cmd.SideMove < -doom.MAXPLMOVE ||
+		cmd.DriftTurn > doom.KART_FULLTURN || cmd.DriftTurn < -doom.KART_FULLTURN {
+		return true
+	}
+
+	return false
 }
 
 func (r *room) removePlayer(p *player) {
