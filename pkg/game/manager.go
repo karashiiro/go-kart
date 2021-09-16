@@ -79,6 +79,9 @@ func (m *Manager) Run() {
 	m.server = server
 
 	for {
+		// PT_SERVERINFO should be the largest packet at 1024 bytes.
+		// d_clisrv.h notes 64kB packets under doomdata_t, but those
+		// are probably junk numbers.
 		data := make([]byte, 1024)
 		n, addr, err := m.server.ReadFrom(data)
 		if err != nil {
