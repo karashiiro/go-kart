@@ -10,9 +10,11 @@ import (
 )
 
 type player struct {
-	name string
-	conn network.Connection
-	room *room
+	name      string
+	skin      uint8
+	skinColor uint8
+	conn      network.Connection
+	room      *room
 }
 
 func (p player) Send(data []byte) error {
