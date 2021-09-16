@@ -15,11 +15,143 @@ type PacketHeader struct {
 	Reserved   uint8 // Padding
 }
 
+// Sent to client when all consistency data
+// for players has been restored
+type ResynchEndPak struct {
+	RandomSeed uint32
+
+	FlagPlayer [2]int8
+	FlagLoose  [2]int32
+	FlagFlags  [2]int32
+	FlagX      [2]doom.Fixed
+	FlagY      [2]doom.Fixed
+	FlagZ      [2]doom.Fixed
+
+	InGame  uint32                 // Spectator bit for each player
+	CTFTeam [doom.MAXPLAYERS]int32 // Which team? (can't be 1 bit, since in regular Match there are no teams)
+
+	// Resynch game scores and the like all at once
+	Score     [doom.MAXPLAYERS]uint32 // Everyone's score
+	MareScore [doom.MAXPLAYERS]uint32 // SRB2kart: Battle score
+	RealTime  [doom.MAXPLAYERS]doom.Tic
+	Laps      [doom.MAXPLAYERS]uint8
+}
+
+type ResynchPak struct {
+	PacketHeader
+
+	PlayerNum uint8
+
+	PlayerState uint8
+	PFlags      uint32
+	PAnim       uint8
+
+	Aiming        doom.Angle
+	CurrentWeapon uint32
+	RingWeapons   uint32
+
+	Powers [doom.NUMPOWERS]uint16
+
+	KartStuff  [doom.NUMKARTSTUFF]int32
+	FrameAngle doom.Angle
+
+	Health    int32
+	Lives     int8
+	Continues int8
+	ScoreAdd  uint8
+	XtraLife  int8
+	Pity      int8
+
+	SkinColor uint8
+	Skin      int32
+
+	KartSpeed  uint8
+	KartWeight uint8
+
+	CharFlags uint32
+
+	Speed      doom.Fixed
+	Jumping    uint8
+	SecondJump uint8
+	Fly1       uint8
+	GlideTime  doom.Tic
+	Climbing   uint8
+	DeadTimer  int32
+	Exiting    doom.Tic
+	Homing     uint8
+	SkidTime   doom.Tic
+	CMOMX      doom.Fixed
+	CMOMY      doom.Fixed
+	RMOMX      doom.Fixed
+	RMOMY      doom.Fixed
+
+	WeaponDelay int32
+	TossDelay   int32
+
+	StarPostX     int16
+	StarPostY     int16
+	StarPostZ     int16
+	StarPostNum   int32
+	StarPostTime  doom.Tic
+	StarPostAngle doom.Angle
+
+	MaxLink         int32
+	DashSpeed       doom.Fixed
+	DashTime        int32
+	AnglePos        doom.Angle
+	OldAnglePos     doom.Angle
+	BumperTime      doom.Tic
+	FlyAngle        int32
+	DrillTimer      doom.Tic
+	LinkCount       int32
+	LinkTimer       doom.Tic
+	AnotherFlyAngle int32
+	NightsTime      doom.Tic
+	DrillMeter      int32
+	DrillDelay      uint8
+	BonusTime       uint8
+	Mare            uint8
+	LastSideHit     uint16
+	LastLineHit     uint16
+
+	LossTime   doom.Tic
+	TimesHit   uint8
+	OnConveyor int32
+
+	JoinTime doom.Tic
+
+	SplitscreenIndex uint8
+
+	HasMo uint8
+
+	Angle      doom.Angle
+	X          doom.Fixed
+	Y          doom.Fixed
+	Z          doom.Fixed
+	MOMX       doom.Fixed
+	MOMY       doom.Fixed
+	MOMZ       doom.Fixed
+	Friction   doom.Fixed
+	MoveFactor doom.Fixed
+
+	Tics     int32
+	StateNum doom.StateNum
+	Flags    uint32
+	Flags2   uint32
+	EFlags   uint16
+
+	Radius     doom.Fixed
+	Height     doom.Fixed
+	Scale      doom.Fixed
+	DestScale  doom.Fixed
+	ScaleSpeed doom.Fixed
+}
+
 type AskInfoPak struct {
 	PacketHeader
 
 	Version uint8
-	Time    uint32
+	Time    doom.Tic
 }
 
 const MAXFILENEEDED = 915
@@ -40,8 +172,8 @@ type ServerInfoPak struct {
 	CheatsEnabled  uint8
 	KartVars       uint8
 	FileNeededNum  uint8
-	Time           uint32
-	LevelTime      uint32
+	Time           doom.Tic
+	LevelTime      doom.Tic
 	ServerName     [32]byte
 	MapName        [8]byte
 	MapTitle       [33]byte
@@ -61,7 +193,7 @@ type ServerConfigPak struct {
 	ServerPlayer uint8
 	TotalSlotNum uint8 // "Slots": highest player number in use plus one.
 
-	GameTic    uint32
+	GameTic    doom.Tic
 	ClientNode uint8
 	GameState  uint8
 
