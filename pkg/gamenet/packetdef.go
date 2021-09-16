@@ -219,6 +219,20 @@ type ResynchPak struct {
 	ScaleSpeed doom.Fixed
 }
 
+type ResynchGotPak struct {
+	PacketHeader
+
+	ResynchGot uint8
+}
+
+const MAXTEXTCMD = 256
+
+type TextCmdPak struct {
+	PacketHeader
+
+	TextCmd [MAXTEXTCMD + 1]byte
+}
+
 const MAXFILENEEDED = 915
 const MAX_MIRROR_LENGTH = 256
 
@@ -355,4 +369,16 @@ type FilesNeededConfigPak struct {
 	Num   uint8
 	More  uint8
 	Files [MAXFILENEEDED]uint8
+}
+
+type FilesNeededNumPak struct {
+	PacketHeader
+
+	FilesNeeded int32
+}
+
+type PingTablePak struct {
+	PacketHeader
+
+	PingTable [doom.MAXPLAYERS + 1]uint32
 }
