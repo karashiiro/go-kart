@@ -219,13 +219,6 @@ type ResynchPak struct {
 	ScaleSpeed doom.Fixed
 }
 
-type AskInfoPak struct {
-	PacketHeader
-
-	Version uint8
-	Time    doom.Tic
-}
-
 const MAXFILENEEDED = 915
 const MAX_MIRROR_LENGTH = 256
 
@@ -287,6 +280,15 @@ type ServerConfigPak struct {
 	VarLengthInputs [0]uint8 // Playernames and netvars
 }
 
+type FileTxPak struct {
+	PacketHeader
+
+	FileId   uint8
+	Position uint32
+	Size     uint16
+	Data     [0]uint8 // Size is variable using hardware_MAXPACKETLENGTH
+}
+
 type ClientConfigPak struct {
 	PacketHeader
 
@@ -321,4 +323,18 @@ type ServerRefusePak struct {
 	PacketHeader
 
 	Reason [255]byte
+}
+
+type AskInfoPak struct {
+	PacketHeader
+
+	Version uint8
+	Time    doom.Tic // used for ping evaluation
+}
+
+type MSAskInfoPak struct {
+	PacketHeader
+
+	ClientAddr [22]byte
+	Time       doom.Tic // used for ping evaluation
 }
