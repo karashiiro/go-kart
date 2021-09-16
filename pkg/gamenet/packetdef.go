@@ -347,3 +347,12 @@ type PlayerConfig struct {
 	Score   uint32
 	CTFTeam uint8
 }
+
+type FilesNeededConfigPak struct {
+	PacketHeader
+
+	First int32
+	Num   uint8
+	More  uint8
+	Files [MAXFILENEEDED]uint8
+}
