@@ -52,6 +52,16 @@ type ServerInfoPak struct {
 	FileNeeded     [MAXFILENEEDED]byte
 }
 
+type ClientConfigPak struct {
+	X255          uint8
+	PacketVersion uint8
+	Application   [MAXAPPLICATION]byte
+	Version       uint8
+	Subversion    uint8
+	LocalPlayers  uint8 // number of splitscreen players
+	Mode          uint8
+}
+
 type PlayerInfoPak struct {
 	PacketHeader
 
