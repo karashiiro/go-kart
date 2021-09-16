@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 
 	"github.com/karashiiro/gokart/pkg/doom"
 	"github.com/karashiiro/gokart/pkg/gamenet"
@@ -163,9 +164,19 @@ func (m *Manager) sendPlayerInfo(conn network.Connection) {
 	}
 }
 
-func (m *Manager) handleConnect(conn network.Connection) {
-	if m.numPlayers >= m.maxPlayers {
+func (m *Manager) handleConnect(conn network.Connection, cfg *gamenet.ClientConfigPak) {
+	if cfg.X255 != 255 || cfg.PacketVersion != gamenet.PACKETVERSION {
+		m.sendRefuse(conn, "Incompatible packet formats.")
+	} else if !strings.EqualFold(string(cfg.Application[:]), doom.SRB2APPLICATION) {
+		m.sendRefuse(conn, "Different SRB2 modifications\nare not compatible.")
+	} else if cfg.Version != doom.VERSION || cfg.Subversion != doom.SUBVERSION {
+		m.sendRefuse(conn, fmt.Sprintf("Different SRB2Kart versions cannot\nplay a netgame!\n(server version %d.%d)", doom.VERSION, doom.SUBVERSION))
+	} else if m.numPlayers+cfg.LocalPlayers > m.maxPlayers {
+		m.sendRefuse(conn, fmt.Sprintf("Number of local players\nwould exceed maximum: %d", m.maxPlayers))
+	} else if m.numPlayers >= m.maxPlayers {
 		m.sendRefuse(conn, fmt.Sprintf("Maximum players reached: %d", m.maxPlayers))
+	} else if cfg.LocalPlayers == 0 {
+		m.sendRefuse(conn, "No players from\nthis node.")
 	}
 }
 
