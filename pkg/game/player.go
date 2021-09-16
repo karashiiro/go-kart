@@ -10,11 +10,90 @@ import (
 )
 
 type player struct {
-	name      string
-	skin      uint8
-	skinColor uint8
-	conn      network.Connection
-	room      *room
+	PlayerState uint8
+	PFlags      uint32
+	PAnim       uint8
+
+	Aiming        doom.Angle
+	CurrentWeapon uint32
+	RingWeapons   uint32
+
+	Powers [doom.NUMPOWERS]uint16
+
+	KartStuff  [doom.NUMKARTSTUFF]int32
+	FrameAngle doom.Angle
+
+	Health    int32
+	Lives     int8
+	Continues int8
+	ScoreAdd  uint8
+	XtraLife  int8
+	Pity      int8
+
+	SkinColor uint8
+	Skin      int32
+
+	KartSpeed  uint8
+	KartWeight uint8
+
+	CharFlags uint32
+
+	Speed      doom.Fixed
+	Jumping    uint8
+	SecondJump uint8
+	Fly1       uint8
+	GlideTime  doom.Tic
+	Climbing   uint8
+	DeadTimer  int32
+	Exiting    doom.Tic
+	Homing     uint8
+	SkidTime   doom.Tic
+	CMomentumX doom.Fixed
+	CMomentumY doom.Fixed
+	RMomentumX doom.Fixed
+	RMomentumY doom.Fixed
+
+	WeaponDelay int32
+	TossDelay   int32
+
+	StarPostX     int16
+	StarPostY     int16
+	StarPostZ     int16
+	StarPostNum   int32
+	StarPostTime  doom.Tic
+	StarPostAngle doom.Angle
+
+	MaxLink         int32
+	DashSpeed       doom.Fixed
+	DashTime        int32
+	AnglePos        doom.Angle
+	OldAnglePos     doom.Angle
+	BumperTime      doom.Tic
+	FlyAngle        int32
+	DrillTimer      doom.Tic
+	LinkCount       int32
+	LinkTimer       doom.Tic
+	AnotherFlyAngle int32
+	NightsTime      doom.Tic
+	DrillMeter      int32
+	DrillDelay      uint8
+	BonusTime       uint8
+	Mare            uint8
+	LastSideHit     uint16
+	LastLineHit     uint16
+
+	LossTime   doom.Tic
+	TimesHit   uint8
+	OnConveyor int32
+
+	JoinTime doom.Tic
+
+	SplitscreenIndex uint8
+
+	mobj *MObj
+	name string
+	conn network.Connection
+	room *room
 }
 
 func (p player) Send(data []byte) error {

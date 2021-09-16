@@ -152,10 +152,10 @@ type ResynchPak struct {
 	Exiting    doom.Tic
 	Homing     uint8
 	SkidTime   doom.Tic
-	CMOMX      doom.Fixed
-	CMOMY      doom.Fixed
-	RMOMX      doom.Fixed
-	RMOMY      doom.Fixed
+	CMomentumX doom.Fixed
+	CMomentumY doom.Fixed
+	RMomentumX doom.Fixed
+	RMomentumY doom.Fixed
 
 	WeaponDelay int32
 	TossDelay   int32
@@ -200,9 +200,9 @@ type ResynchPak struct {
 	X          doom.Fixed
 	Y          doom.Fixed
 	Z          doom.Fixed
-	MOMX       doom.Fixed
-	MOMY       doom.Fixed
-	MOMZ       doom.Fixed
+	MomentumX  doom.Fixed
+	MomentumY  doom.Fixed
+	MomentumZ  doom.Fixed
 	Friction   doom.Fixed
 	MoveFactor doom.Fixed
 
