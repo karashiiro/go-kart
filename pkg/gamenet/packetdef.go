@@ -338,3 +338,12 @@ type MSAskInfoPak struct {
 	ClientAddr [22]byte
 	Time       doom.Tic // used for ping evaluation
 }
+
+type PlayerConfig struct {
+	Name    [doom.MAXPLAYERNAME + 1]byte
+	Skin    uint8
+	Color   uint8
+	PFlags  uint32
+	Score   uint32
+	CTFTeam uint8
+}
