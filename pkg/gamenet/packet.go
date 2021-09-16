@@ -7,6 +7,11 @@ import (
 	"github.com/karashiiro/gokart/pkg/network"
 )
 
+func ReadPacket(data []byte, s interface{}) {
+	buf := bytes.NewReader(data)
+	binary.Read(buf, binary.LittleEndian, s)
+}
+
 func SendPacket(conn network.Connection, data interface{}) error {
 	buf := new(bytes.Buffer)
 	err := binary.Write(buf, binary.LittleEndian, data)

@@ -1,8 +1,6 @@
 package game
 
 import (
-	"bytes"
-	"encoding/binary"
 	"errors"
 	"fmt"
 	"log"
@@ -106,16 +104,14 @@ func (m *Manager) Run() {
 
 func (m *Manager) handlePacketFromAwayNode(conn network.Connection, data []byte) {
 	header := gamenet.PacketHeader{}
-	buf := bytes.NewReader(data)
-	binary.Read(buf, binary.LittleEndian, &header)
+	gamenet.ReadPacket(data, &header)
 
 	log.Printf("Got packet from %s with type %d", conn.Addr().String(), header.PacketType)
 
 	switch header.PacketType {
 	case gamenet.PT_ASKINFO:
 		askInfo := gamenet.AskInfoPak{}
-		buf = bytes.NewReader(data)
-		binary.Read(buf, binary.LittleEndian, &askInfo)
+		gamenet.ReadPacket(data, &askInfo)
 		m.sendServerInfo(conn, askInfo.Time)
 		m.sendPlayerInfo(conn)
 	case gamenet.PT_NODETIMEOUT:

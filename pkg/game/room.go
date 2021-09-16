@@ -1,8 +1,6 @@
 package game
 
 import (
-	"bytes"
-	"encoding/binary"
 	"log"
 
 	"github.com/karashiiro/gokart/pkg/doom"
@@ -22,8 +20,7 @@ type room struct {
 
 func (r *room) handlePacketFromPlayer(p *player, data []byte) {
 	header := gamenet.PacketHeader{}
-	buf := bytes.NewReader(data)
-	binary.Read(buf, binary.LittleEndian, &header)
+	gamenet.ReadPacket(data, &header)
 
 	log.Printf("Got packet from %s with type %d", p.name, header.PacketType)
 }
