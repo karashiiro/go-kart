@@ -66,6 +66,15 @@ type Client4CmdPak struct {
 	Cmd4        TicCmd
 }
 
+// Server to client packet
+// this packet is too large
+type ServerTicsPak struct {
+	StartTic uint8
+	NumTics  uint8
+	NumSlots uint8      // "Slots filled": Highest player number in use plus one.
+	Cmds     [45]TicCmd // Normally [BACKUPTIC][MAXPLAYERS] but too large
+}
+
 // Sent to client when all consistency data
 // for players has been restored
 type ResynchEndPak struct {
