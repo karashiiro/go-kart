@@ -48,6 +48,7 @@ func New(opts *ManagerOptions) (*Manager, error) {
 	return &Manager{
 		port:          opts.Port,
 		rooms:         nil,
+		players:       make(map[string]*player),
 		numPlayers:    0,
 		maxPlayers:    opts.MaxPlayers,
 		motd:          opts.Motd,
@@ -121,13 +122,17 @@ func (m *Manager) handlePacketFromAwayNode(conn network.Connection, data []byte)
 		fallthrough
 	case gamenet.PT_CLIENTQUIT:
 		m.removePlayer(conn)
+	case gamenet.PT_CLIENTJOIN:
+		cfg := gamenet.ClientConfigPak{}
+		gamenet.ReadPacket(data, &cfg)
+		m.handleConnect(conn, &cfg)
 	}
 }
 
 func (m *Manager) handleConnect(conn network.Connection, cfg *gamenet.ClientConfigPak) {
 	if cfg.X255 != 255 || cfg.PacketVersion != gamenet.PACKETVERSION {
 		m.sendRefuse(conn, "Incompatible packet formats.")
-	} else if !strings.EqualFold(string(cfg.Application[:]), doom.SRB2APPLICATION) {
+	} else if !strings.EqualFold(string(cfg.Application[:]), string(doom.SRB2APPLICATION)) {
 		m.sendRefuse(conn, "Different SRB2 modifications\nare not compatible.")
 	} else if cfg.Version != doom.VERSION || cfg.Subversion != doom.SUBVERSION {
 		m.sendRefuse(conn, fmt.Sprintf("Different SRB2Kart versions cannot\nplay a netgame!\n(server version %d.%d)", doom.VERSION, doom.SUBVERSION))
@@ -140,6 +145,14 @@ func (m *Manager) handleConnect(conn network.Connection, cfg *gamenet.ClientConf
 		m.sendRefuse(conn, "Too many players from\nthis node.")
 	} else if cfg.LocalPlayers == 0 { // Stealth join?
 		m.sendRefuse(conn, "No players from\nthis node.")
+	} else {
+		// Client authorized to join
+		p := player{conn: conn}
+		if m.tryAddPlayer(&p) {
+			m.players[p.conn.Addr().String()] = &p
+		}
+
+		m.sendServerConfig(p.conn)
 	}
 }
 

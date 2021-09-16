@@ -4,8 +4,6 @@ import "github.com/karashiiro/gokart/pkg/doom"
 
 const PACKETVERSION = 0
 
-const MAXAPPLICATION = 16
-
 type PacketHeader struct {
 	Checksum  uint32
 	Ack       uint8 // If not zero the node asks for acknowledgement, the receiver must resend the ack
@@ -241,7 +239,7 @@ type ServerInfoPak struct {
 
 	X255           uint8
 	PacketVersion  uint8
-	Application    [MAXAPPLICATION]byte
+	Application    [doom.MAXAPPLICATION]byte
 	Version        uint8
 	Subversion     uint8
 	NumberOfPlayer uint8
@@ -308,7 +306,7 @@ type ClientConfigPak struct {
 
 	X255          uint8
 	PacketVersion uint8
-	Application   [MAXAPPLICATION]byte
+	Application   [doom.MAXAPPLICATION]byte
 	Version       uint8
 	Subversion    uint8
 	LocalPlayers  uint8 // number of splitscreen players
