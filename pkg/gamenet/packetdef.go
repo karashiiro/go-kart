@@ -40,8 +40,8 @@ type ServerInfoPak struct {
 	CheatsEnabled  uint8
 	KartVars       uint8
 	FileNeededNum  uint8
-	Time           uint32 // dtype??
-	LevelTime      uint32 // dtype??
+	Time           uint32
+	LevelTime      uint32
 	ServerName     [32]byte
 	MapName        [8]byte
 	MapTitle       [33]byte
@@ -52,7 +52,40 @@ type ServerInfoPak struct {
 	FileNeeded     [MAXFILENEEDED]byte
 }
 
+type ServerConfigPak struct {
+	PacketHeader
+
+	Version    uint8
+	Subversion uint8
+
+	ServerPlayer uint8
+	TotalSlotNum uint8 // "Slots": highest player number in use plus one.
+
+	GameTic    uint32
+	ClientNode uint8
+	GameState  uint8
+
+	// 0xFF == not in game; else player skin num
+	PlayerSkins [doom.MAXPLAYERS]uint8
+	PlayerColor [doom.MAXPLAYERS]uint8
+
+	GameType     uint8
+	ModifiedGame uint8
+	AdminPlayers [doom.MAXPLAYERS]int8 // Needs to be signed
+
+	ServerContext uint8 // Unique context id
+
+	// Discord info (always defined for net compatibility)
+	MaxPlayer      uint8
+	AllowNewPlayer bool
+	DiscordInvites bool
+
+	VarLengthInputs [0]uint8 // Playernames and netvars
+}
+
 type ClientConfigPak struct {
+	PacketHeader
+
 	X255          uint8
 	PacketVersion uint8
 	Application   [MAXAPPLICATION]byte

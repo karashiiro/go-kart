@@ -1,3 +1,4 @@
 package doom
 
 const MASTERSERVER_MAXPLAYERS = 32
+const MAXPLAYERS = 16
