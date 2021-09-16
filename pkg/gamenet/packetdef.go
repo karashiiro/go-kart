@@ -73,7 +73,7 @@ type ServerConfigPak struct {
 	ModifiedGame uint8
 	AdminPlayers [doom.MAXPLAYERS]int8 // Needs to be signed
 
-	ServerContext uint8 // Unique context id
+	ServerContext [8]byte // Unique context id
 
 	// Discord info (always defined for net compatibility)
 	MaxPlayer      uint8

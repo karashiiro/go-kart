@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"strings"
+	"time"
 
 	"github.com/karashiiro/gokart/pkg/doom"
 	"github.com/karashiiro/gokart/pkg/gamenet"
@@ -102,6 +103,22 @@ func (m *Manager) handleConnection(n int, conn network.Connection, data []byte) 
 	}
 }
 
+func (m *Manager) handleConnect(conn network.Connection, cfg *gamenet.ClientConfigPak) {
+	if cfg.X255 != 255 || cfg.PacketVersion != gamenet.PACKETVERSION {
+		m.sendRefuse(conn, "Incompatible packet formats.")
+	} else if !strings.EqualFold(string(cfg.Application[:]), doom.SRB2APPLICATION) {
+		m.sendRefuse(conn, "Different SRB2 modifications\nare not compatible.")
+	} else if cfg.Version != doom.VERSION || cfg.Subversion != doom.SUBVERSION {
+		m.sendRefuse(conn, fmt.Sprintf("Different SRB2Kart versions cannot\nplay a netgame!\n(server version %d.%d)", doom.VERSION, doom.SUBVERSION))
+	} else if m.numPlayers+cfg.LocalPlayers > m.maxPlayers {
+		m.sendRefuse(conn, fmt.Sprintf("Number of local players\nwould exceed maximum: %d", m.maxPlayers))
+	} else if m.numPlayers >= m.maxPlayers {
+		m.sendRefuse(conn, fmt.Sprintf("Maximum players reached: %d", m.maxPlayers))
+	} else if cfg.LocalPlayers == 0 {
+		m.sendRefuse(conn, "No players from\nthis node.")
+	}
+}
+
 const SV_SPEEDMASK uint8 = 0x03
 const SV_DEDICATED uint8 = 0x40
 
@@ -147,6 +164,10 @@ func (m *Manager) sendPlayerInfo(conn network.Connection) {
 	// Send as many players as we can, e.g. min(numPlayers, doom.MASTERSERVER_MAXPLAYERS)
 	i := 0
 	for _, player := range m.players {
+		if i >= doom.MASTERSERVER_MAXPLAYERS {
+			break
+		}
+
 		if i >= int(m.numPlayers) {
 			playerInfo.Players[i].Node = 255
 			continue
@@ -156,6 +177,8 @@ func (m *Manager) sendPlayerInfo(conn network.Connection) {
 
 		copy(playerInfo.Players[i].Name[:], []byte(player.name))
 		playerInfo.Players[i].Name[doom.MAXPLAYERNAME] = 0 // Null out the last byte in case of an overrun
+
+		i++
 	}
 
 	err := gamenet.SendPacket(conn, &playerInfo)
@@ -164,19 +187,51 @@ func (m *Manager) sendPlayerInfo(conn network.Connection) {
 	}
 }
 
-func (m *Manager) handleConnect(conn network.Connection, cfg *gamenet.ClientConfigPak) {
-	if cfg.X255 != 255 || cfg.PacketVersion != gamenet.PACKETVERSION {
-		m.sendRefuse(conn, "Incompatible packet formats.")
-	} else if !strings.EqualFold(string(cfg.Application[:]), doom.SRB2APPLICATION) {
-		m.sendRefuse(conn, "Different SRB2 modifications\nare not compatible.")
-	} else if cfg.Version != doom.VERSION || cfg.Subversion != doom.SUBVERSION {
-		m.sendRefuse(conn, fmt.Sprintf("Different SRB2Kart versions cannot\nplay a netgame!\n(server version %d.%d)", doom.VERSION, doom.SUBVERSION))
-	} else if m.numPlayers+cfg.LocalPlayers > m.maxPlayers {
-		m.sendRefuse(conn, fmt.Sprintf("Number of local players\nwould exceed maximum: %d", m.maxPlayers))
-	} else if m.numPlayers >= m.maxPlayers {
-		m.sendRefuse(conn, fmt.Sprintf("Maximum players reached: %d", m.maxPlayers))
-	} else if cfg.LocalPlayers == 0 {
-		m.sendRefuse(conn, "No players from\nthis node.")
+func (m *Manager) sendServerConfig(conn network.Connection) {
+	serverConfig := gamenet.ServerConfigPak{
+		PacketHeader: gamenet.PacketHeader{
+			PacketType: gamenet.PT_SERVERCFG,
+		},
+		Version:        doom.VERSION,
+		Subversion:     doom.SUBVERSION,
+		ServerPlayer:   m.maxPlayers,
+		TotalSlotNum:   m.numPlayers,
+		GameTic:        uint32(time.Now().Unix()),
+		ClientNode:     0,
+		GameState:      0,
+		GameType:       uint8(m.gameType),
+		ModifiedGame:   0,
+		MaxPlayer:      m.maxPlayers,
+		AllowNewPlayer: true,
+		DiscordInvites: false,
+	}
+
+	// Send as many players as we can, e.g. min(numPlayers, doom.MAXPLAYERS)
+	i := 0
+	for _, player := range m.players {
+		if i >= doom.MAXPLAYERS {
+			break
+		}
+
+		serverConfig.AdminPlayers[i] = -1
+
+		if i >= int(m.numPlayers) {
+			serverConfig.PlayerSkins[i] = 0xFF
+			serverConfig.PlayerColor[i] = 0xFF
+			continue
+		}
+
+		serverConfig.PlayerSkins[i] = player.skin
+		serverConfig.PlayerColor[i] = player.skinColor
+
+		i++
+	}
+
+	copy(serverConfig.ServerContext[:], m.serverContext)
+
+	err := gamenet.SendPacket(conn, &serverConfig)
+	if err != nil {
+		log.Println(err)
 	}
 }
 
