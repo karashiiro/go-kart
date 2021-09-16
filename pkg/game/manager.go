@@ -245,8 +245,8 @@ func (m *Manager) sendServerConfig(conn network.Connection) {
 			continue
 		}
 
-		serverConfig.PlayerSkins[i] = player.skin
-		serverConfig.PlayerColor[i] = player.skinColor
+		serverConfig.PlayerSkins[i] = uint8(player.Skin)
+		serverConfig.PlayerColor[i] = player.SkinColor
 
 		i++
 	}
