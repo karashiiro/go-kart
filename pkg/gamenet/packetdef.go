@@ -27,6 +27,8 @@ type TicCmd struct {
 
 // Client to server packet
 type ClientCmdPak struct {
+	PacketHeader
+
 	ClientTic   uint8
 	ResendFrom  uint8
 	Consistency int16
@@ -36,6 +38,8 @@ type ClientCmdPak struct {
 // Splitscreen packet
 // WARNING: must have the same format of clientcmd_pak, for more easy use
 type Client2CmdPak struct {
+	PacketHeader
+
 	ClientTic   uint8
 	ResendFrom  uint8
 	Consistency int16
@@ -46,6 +50,8 @@ type Client2CmdPak struct {
 // 3P Splitscreen packet
 // WARNING: must have the same format of clientcmd_pak, for more easy use
 type Client3CmdPak struct {
+	PacketHeader
+
 	ClientTic   uint8
 	ResendFrom  uint8
 	Consistency int16
@@ -57,6 +63,8 @@ type Client3CmdPak struct {
 // 4P Splitscreen packet
 // WARNING: must have the same format of clientcmd_pak, for more easy use
 type Client4CmdPak struct {
+	PacketHeader
+
 	ClientTic   uint8
 	ResendFrom  uint8
 	Consistency int16
@@ -69,6 +77,8 @@ type Client4CmdPak struct {
 // Server to client packet
 // this packet is too large
 type ServerTicsPak struct {
+	PacketHeader
+
 	StartTic uint8
 	NumTics  uint8
 	NumSlots uint8      // "Slots filled": Highest player number in use plus one.
@@ -78,6 +88,8 @@ type ServerTicsPak struct {
 // Sent to client when all consistency data
 // for players has been restored
 type ResynchEndPak struct {
+	PacketHeader
+
 	RandomSeed uint32
 
 	FlagPlayer [2]int8
