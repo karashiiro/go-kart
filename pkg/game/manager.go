@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/karashiiro/gokart/pkg/command"
 	"github.com/karashiiro/gokart/pkg/doom"
 	"github.com/karashiiro/gokart/pkg/gamenet"
 	"github.com/karashiiro/gokart/pkg/network"
@@ -29,6 +30,7 @@ type Manager struct {
 	gameType      GameType
 	broadcast     *network.BroadcastConnection
 	server        *net.UDPConn
+	commands      *command.Manager
 }
 
 type ManagerOptions struct {
@@ -56,6 +58,7 @@ func New(opts *ManagerOptions) (*Manager, error) {
 		kartSpeed:     opts.KartSpeed,
 		gameType:      opts.GameType,
 		broadcast:     network.NewBroadcastConnection(int(opts.MaxPlayers)),
+		commands:      &command.Manager{},
 	}, nil
 }
 
