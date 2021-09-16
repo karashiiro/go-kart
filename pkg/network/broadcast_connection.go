@@ -40,6 +40,7 @@ func (b *BroadcastConnection) Set(conn Connection) error {
 		return errors.New("maximum connection count reached")
 	}
 
+	// TODO: fix race condition
 	b.conns[b.numConns] = conn
 	b.numConns++
 
@@ -58,6 +59,7 @@ func (b *BroadcastConnection) Unset(conn Connection) {
 		return
 	}
 
+	// TODO: fix race condition
 	b.conns[connIdx] = b.conns[b.numConns-1]
 	b.conns[b.numConns-1] = nil
 	b.numConns--

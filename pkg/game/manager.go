@@ -102,6 +102,9 @@ func (m *Manager) Run() {
 	}
 }
 
+// handlePacketFromAwayNode handles messages from connections that aren't
+// necessarily players. This is used for things such as getting server info
+// for directories, and getting addon info.
 func (m *Manager) handlePacketFromAwayNode(conn network.Connection, data []byte) {
 	header := gamenet.PacketHeader{}
 	gamenet.ReadPacket(data, &header)
@@ -143,6 +146,8 @@ func (m *Manager) handleConnect(conn network.Connection, cfg *gamenet.ClientConf
 const SV_SPEEDMASK uint8 = 0x03
 const SV_DEDICATED uint8 = 0x40
 
+// sendServerInfo sends the server info. This is used to populate
+// server directories.
 func (m *Manager) sendServerInfo(conn network.Connection, serverTime uint32) {
 	serverInfo := gamenet.ServerInfoPak{
 		PacketHeader: gamenet.PacketHeader{
@@ -175,6 +180,8 @@ func (m *Manager) sendServerInfo(conn network.Connection, serverTime uint32) {
 	}
 }
 
+// sendPlayerInfo sends information about the players on this server.
+// This is used to populate server directories.
 func (m *Manager) sendPlayerInfo(conn network.Connection) {
 	playerInfo := gamenet.PlayerInfoPak{
 		PacketHeader: gamenet.PacketHeader{
@@ -234,6 +241,7 @@ func (m *Manager) sendServerConfig(conn network.Connection) {
 			break
 		}
 
+		// TODO: Implement admin players
 		serverConfig.AdminPlayers[i] = -1
 
 		if i >= int(m.numPlayers) {
@@ -256,6 +264,8 @@ func (m *Manager) sendServerConfig(conn network.Connection) {
 	}
 }
 
+// sendRefuse denies a connection's join request, sending
+// back the provided reason.
 func (m *Manager) sendRefuse(conn network.Connection, reason string) {
 	refuse := gamenet.ServerRefusePak{
 		PacketHeader: gamenet.PacketHeader{
@@ -271,6 +281,7 @@ func (m *Manager) sendRefuse(conn network.Connection, reason string) {
 	}
 }
 
+// removePlayer removes a player from the server.
 func (m *Manager) removePlayer(conn network.Connection) {
 	var p *player
 	var ok bool
@@ -288,6 +299,8 @@ func (m *Manager) removePlayer(conn network.Connection) {
 	m.numPlayers--
 }
 
+// tryAddPlayer attempts to add a player to this room,
+// returning true if the operation was successful.
 func (m *Manager) tryAddPlayer(p *player) bool {
 	// Check if capacity has been reached
 	if m.numPlayers >= m.maxPlayers {

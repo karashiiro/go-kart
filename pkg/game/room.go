@@ -18,6 +18,8 @@ type room struct {
 	broadcast    *network.BroadcastConnection
 }
 
+// handlePacketFromPlayer handles all messages from known players.
+// Each room is only expected to handle packets for its own players.
 func (r *room) handlePacketFromPlayer(p *player, data []byte) {
 	header := gamenet.PacketHeader{}
 	gamenet.ReadPacket(data, &header)
@@ -36,6 +38,7 @@ func (r *room) isTicCmdHacked(cmd *gamenet.TicCmd) bool {
 	return false
 }
 
+// removePlayer removes a player from this room.
 func (r *room) removePlayer(p *player) {
 	playerIdx := -1
 	for i := 0; i < len(r.players); i++ {
@@ -48,6 +51,7 @@ func (r *room) removePlayer(p *player) {
 		return
 	}
 
+	// TODO: fix race condition
 	r.broadcast.Unset(p.conn)
 	r.playerInGame[playerIdx] = false
 	r.players[playerIdx] = r.players[r.numPlayers-1]
@@ -56,6 +60,8 @@ func (r *room) removePlayer(p *player) {
 	r.numPlayers--
 }
 
+// tryAddPlayer attempts to add a player to this room,
+// returning true if the operation was successful.
 func (r *room) tryAddPlayer(p *player) bool {
 	// Room is in a match
 	if r.state == "playing" {
@@ -68,6 +74,7 @@ func (r *room) tryAddPlayer(p *player) bool {
 	}
 
 	// Add player to room
+	// TODO: fix race condition
 	r.players[r.numPlayers] = p
 	r.playerInGame[r.numPlayers] = false
 	r.broadcast.Set(p.conn)
