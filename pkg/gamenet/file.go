@@ -25,6 +25,9 @@ func SendFileMemory(conn network.Connection, data []byte) error {
 		nextChunkSize := int(math.Min(float64(size), 1011))
 
 		f := &FileTxPak{
+			PacketHeader: PacketHeader{
+				PacketType: PT_FILEFRAGMENT,
+			},
 			FileId:   uint8(uintptr(unsafe.Pointer(&data)) >> 8),
 			Position: uint32(pos),
 			Size:     uint16(nextChunkSize),
