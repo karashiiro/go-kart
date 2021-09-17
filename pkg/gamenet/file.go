@@ -5,11 +5,17 @@ import (
 	"unsafe"
 
 	"github.com/karashiiro/gokart/pkg/network"
+	"github.com/tav/golly/lzf"
 )
 
 // Whereas the original implementation uses a linked list of file
 // transactions, we just send the files one by one in a blocking
 // manner, since we have the benefit of goroutines.
+
+func SendFileMemoryCompressed(conn network.Connection, data []byte) error {
+	compressed := lzf.Compress(data)
+	return SendFileMemory(conn, compressed)
+}
 
 func SendFileMemory(conn network.Connection, data []byte) error {
 	pos := 0
