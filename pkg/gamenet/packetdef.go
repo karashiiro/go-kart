@@ -289,7 +289,7 @@ type ServerConfigPak struct {
 	AllowNewPlayer bool
 	DiscordInvites bool
 
-	VarLengthInputs [0]uint8 // Playernames and netvars
+	VarLengthInputs []uint8 // Playernames and netvars
 }
 
 type FileTxPak struct {
@@ -298,7 +298,7 @@ type FileTxPak struct {
 	FileId   uint8
 	Position uint32
 	Size     uint16
-	Data     [0]uint8 // Size is variable using hardware_MAXPACKETLENGTH
+	Data     [1011]uint8
 }
 
 type ClientConfigPak struct {
