@@ -173,10 +173,16 @@ func (m *Manager) sendServerInfo(conn network.Connection, serverTime uint32) {
 		Time:           serverTime,
 		NumberOfPlayer: m.numPlayers,
 		MaxPlayer:      m.maxPlayers,
-		GameType:       uint8(m.gameType),
 		ModifiedGame:   0,
 		CheatsEnabled:  0,
 		KartVars:       (uint8(m.kartSpeed) & SV_SPEEDMASK) | SV_DEDICATED,
+	}
+
+	// SRB2Kart: Vanilla's gametype constants for MS support
+	if m.gameType == GameTypeRace {
+		serverInfo.GameType = uint8(GameTypeRaceVanilla)
+	} else {
+		serverInfo.GameType = uint8(GameTypeBattleVanilla)
 	}
 
 	copy(serverInfo.ServerName[:], m.serverName)
